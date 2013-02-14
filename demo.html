@@ -1,0 +1,40 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>flatselect demo</title>
+<link rel="stylesheet" type="text/css" href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css" />
+<style type="text/css">
+ul {
+	list-style-type : none;
+}
+
+ul li{
+	border-right: 1px solid gray; 
+	float: left;
+}
+</style>
+<script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>
+<script type="text/javascript" src="js/flatselect.js"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+	$('#myselect').flatselect();
+});
+
+</script>
+</head>
+<body>
+
+<select id="myselect">
+	<option value="a">To be</option>
+	<option value="b">or not to be</option>
+	<option value="c">that is the question</option>
+	<option value="d">Whether 'tis Nobler</option>
+	<option value="g">in the mind to suffer</option>
+	<option value="e">The Slings</option>
+	<option value="h">and Arrows of outrageous Fortune</option>
+	<option value="f">Or to take Arms against a Sea of troubles</option>
+</select>
+
+</body>
+</html>
