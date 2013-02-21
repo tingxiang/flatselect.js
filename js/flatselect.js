@@ -5,20 +5,18 @@
 	 * text. Example: values = [{value: 'a', text: 'Foo'}, {value: 'b', text:
 	 * 'Bar'}];
 	 */
-	$.fn.flatselect = function(values, columns) {
+	$.fn.flatselect = function(options) {
+		tmp = getDefaultValues($(this));
+		var defaults = {
+				selectOptions : tmp,
+				columns : 3,
+				minMatch : 3
+		};
+		var opts = $.extend(defaults, options);
+		
 		$(this).hide();
 		$me = $(this);
-		if (!values) {
-			values = [];
-			var $options = $('option', $(this));
-			var length = $options.length;
-			for ( var i = 0; i < length; i++) {
-				values.push({
-					value : $options[i]["value"],
-					text : $options[i]["text"]
-				});
-			}
-		}
+
 
 		var $parent = $(
 				'<div><div class="input-append">\
@@ -28,7 +26,7 @@
 				.insertAfter(this);
 		var $inputDiv = $('div[class=input-append]', $parent);
 		var $inputBox = $('input[type=text]', $parent);
-		generateDropDownContent(values, "", 3);
+		generateDropDownContent(opts.selectOptions, "", opts.columns);
 		var $popupDiv = $('ul', $parent);
 
 		$inputDiv.bind('click', toggleDropdown);
@@ -47,22 +45,35 @@
 		$inputBox.keyup(function() {
 			var $subStr = $(this).val();
 			if ($subStr.length > $origStr.length) {
-				if ($subStr.length > 3) {
+				if ($subStr.length > opts.minMatch) {
 					var $subStr = $(this).val();
 					$popupDiv.remove();
-					generateDropDownContent(values, $subStr, 3);
+					generateDropDownContent(opts.selectOptions, $subStr, opts.columns);
 					$popupDiv = $('ul', $parent);
 					toggleDropdown();
 				}
 			} else if ($subStr.length < $origStr.length) {
 				$popupDiv.remove();
-				generateDropDownContent(values, "", 3);
+				generateDropDownContent(opts.selectOptions, "", opts.columns);
 				$popupDiv = $('ul', $parent);
 				toggleDropdown();
 			}
 			$origStr = $subStr;
 		});
-
+		
+		function getDefaultValues(select){
+			var values = [];
+			var $options = $('option', select);
+			var length = $options.length;
+			for ( var i = 0; i < length; i++) {
+				values.push({
+					value : $options[i]["value"],
+					text : $options[i]["text"]
+				});
+			}
+			return values;
+		}
+		
 		function toggleDropdown() {
 			$popupDiv.css({
 				"top" : $inputDiv.offset().top + $inputDiv.height(),
@@ -96,5 +107,7 @@
 				show.insertAfter($inputDiv);
 			}
 		}
+		
+		return this;
 	};
 })(jQuery);
