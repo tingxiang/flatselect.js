@@ -6,20 +6,17 @@
 	 * 'Bar'}];
 	 */
 	$.fn.flatselect = function(values, columns) {
-		// console.log('select2');
 		$(this).hide();
 		$me = $(this);
 		if (!values) {
 			values = [];
 			var $options = $('option', $(this));
-			// console.log($options);
 			var length = $options.length;
 			for ( var i = 0; i < length; i++) {
 				values.push({
 					value : $options[i]["value"],
 					text : $options[i]["text"]
 				});
-				// console.log('option: ' + $options[i].text);
 			}
 		}
 
@@ -27,97 +24,77 @@
 				'<div><div class="input-append">\
 				<input type="text" class="span2"> \
 					<span class="add-on"><i class="icon-chevron-down"></i></span></div> \
-				<ul id="list1" class="dropdown-menu"></ul></div>')
+				</div>')
 				.insertAfter(this);
-
-		// var $parent = this.parent();
-		// this.replaceWith('<div><div class="input-append">\
-		// <input type="text" class="span2"> \
-		// <span class="add-on"><i class="icon-chevron-down"></i></span></div> \
-		// <ul id="list1" class="dropdown-menu">Hello</ul></div>');
-
 		var $inputDiv = $('div[class=input-append]', $parent);
 		var $inputBox = $('input[type=text]', $parent);
+		generateDropDownContent(values, "", 3);
 		var $popupDiv = $('ul', $parent);
 
-//		console.log($inputDiv);
-//		console.log($inputBox);
-//		console.log($popupDiv);
-
-		$inputDiv.bind('click', showDropdown);
+		$inputDiv.bind('click', toggleDropdown);
 
 		$parent.on('click', 'a', function() {
-			//console.log("$('a', $inputDiv).click");
 			var text = $(this).text();
 			$inputBox.val(text);
 			$me.val($(this).data('value'));
-			//console.log('set select value to ' + $(this).data('value'));
 			$popupDiv.hide();
 		});
 
-		$inputBox.click(function() {
-			//console.log('$inputBox.click');
-			$(this).val("");
+		$inputBox.focus(function() {
+			$(this).select();
 		});
-
-		$popupDiv.html(generateDropDownContent(values));
-
+		var $origStr = "";
 		$inputBox.keyup(function() {
-			//console.log('$inputBox.keyup');
-			var content = $(this).val();
-			var matched = new Array();
-			var show = "";
-			var i = 0;
-			if (content.length > 3) {
-				// $.each(array,
-				// function(){console.log($(this).text())})
-				for (x in values) {
-					if (values[x].indexOf(content) == 0) {
-						matched.push('<a href="#" data-value="' + values[value]
-								+ '">' + values[x].text + '</a>');
-						i++;
-						if (i == 2) {
-							i = 0;
-							tmp = '<li>' + matched.join("") + '</li>';
-							matched.splice(0);
-							show += tmp;
-						}
-					}
+			var $subStr = $(this).val();
+			if ($subStr.length > $origStr.length) {
+				if ($subStr.length > 3) {
+					var $subStr = $(this).val();
+					$popupDiv.remove();
+					generateDropDownContent(values, $subStr, 3);
+					$popupDiv = $('ul', $parent);
+					toggleDropdown();
 				}
-				if (i == 1) {
-					show += '<li>' + matched[0] + '</li>';
-				}
-				if (show.length > 0) {
-					show = '<ul id="list1" class="dropdown-menu hide">' + show
-							+ '</ul>';
-					//console.log(show);
-					$('#list1').remove();
-					$('body').append(show);
-					showDropdown();
-				}
+			} else if ($subStr.length < $origStr.length) {
+				$popupDiv.remove();
+				generateDropDownContent(values, "", 3);
+				$popupDiv = $('ul', $parent);
+				toggleDropdown();
 			}
+			$origStr = $subStr;
 		});
 
-		function showDropdown() {
-			//console.log('showDropdown: ');
-			var $iconTop = $inputDiv.offset().top;
-			var $iconHeight = $inputDiv.height();
-			var $iconLeft = $inputDiv.offset().left;
-
-			$popupDiv.css('top', $iconTop + $iconHeight);
-			$popupDiv.css('left', $iconLeft);
-			//console.log('showDropdown: ' + $popupDiv);
+		function toggleDropdown() {
+			$popupDiv.css({
+				"top" : $inputDiv.offset().top + $inputDiv.height(),
+				"left" : $inputDiv.offset().left
+			});
 			$popupDiv.toggle();
 		}
 
-		function generateDropDownContent(values) {
-			var content = '';
-			for ( var index in values) {
-				content += '<li><a href="#" data-value="' + values[index].value
-						+ '">' + values[index].text + '</a></li>';
+		function generateDropDownContent(values, pattern, columns) {
+			var matched;
+			var show = $('<ul class="dropdown-menu"></ul>');
+			var i = 0;
+			var matches = $('<li></li>');
+			 $.each(values, function(index, value) {
+				if (value.text.indexOf(pattern) == 0) {
+					matched = $('<a href="#" data-value="' + value.value + '">'
+							+ value.text + '</a>');
+					matches.append(matched);
+					i++;
+					if (i == columns) {
+						i = 0;
+						show.append(matches);
+						matches = $('<li></li>');
+					}
+				}
+			});
+			if (i != 0) {
+				show.append(matches);
 			}
-
-			return content;
+			if (matched != null) {
+				show.insertAfter($inputDiv);
+			}
 		}
 	};
 })(jQuery);
